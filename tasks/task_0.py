@@ -20,31 +20,35 @@ Choose one of the options bellow:
     while menu_option != 10:
         
         print(main_menu)
-        menu_option = int(input("Type your option: "))
+        menu_option = input("Type your option: ")
+        if menu_option.isdigit():
+            menu_option = int(menu_option)
 
-        match menu_option:
-            case 1: 
-                pass
-            case 2:
-                pass
-            case 3:
-                pass
-            case 4:
-                pass
-            case 5:
-                pass
-            case 6:
-                pass
-            case 7:
-                pass
-            case 8:
-                pass
-            case 9:
-                pass
-            case 10:
-                print("Thank you for using Mooziq! Have a nice day :)")
-            case _:
-                print("ERROR HANDLING")
+            match menu_option:
+                case 1: 
+                    pass
+                case 2:
+                    pass
+                case 3:
+                    pass
+                case 4:
+                    pass
+                case 5:
+                    pass
+                case 6:
+                    pass
+                case 7:
+                    pass
+                case 8:
+                    pass
+                case 9:
+                    pass
+                case 10:
+                    print("Thank you for using Mooziq! Have a nice day :)")
+                case _:
+                    print("ERROR HANDLING")
+        else:
+            print("ERROR HANDLING")
 
 if __name__ == "__main__":
     main()
