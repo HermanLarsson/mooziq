@@ -21,9 +21,10 @@ Choose one of the options bellow:
         
         print(main_menu)
         menu_option = input("Type your option: ")
-        if menu_option.isdigit():
-            menu_option = int(menu_option)
 
+        if menu_option.isdigit():
+            
+            menu_option = int(menu_option)
             match menu_option:
                 case 1: 
                     pass
@@ -47,6 +48,7 @@ Choose one of the options bellow:
                     print("Thank you for using Mooziq! Have a nice day :)")
                 case _:
                     print("ERROR HANDLING")
+        
         else:
             print("ERROR HANDLING")
 
