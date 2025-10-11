@@ -21,7 +21,7 @@ def get_artist_info(info_one, info_two): # Maybe change names. Cant think of any
             data = json.load(file)
 
             dict_artist_info[data[info_one]] = data[info_two]  #add the info_one as key and the info_two as value  
-                                                                        #add the ".json" later??????
+                                                                        
     return dict_artist_info
 
 
@@ -36,13 +36,13 @@ def fix_capitalization(names_ids, chosen_artist):
     #       chosen_artist = names.ids
     return chosen_artist
     
-def get_albums(names_ids, chosen_artist):  
+def get_artist_albums(names_ids, chosen_artist):  
 
     directory = os.path.dirname(os.path.abspath(__file__))
     folder_path = os.path.join(directory, "dataset/albums/")
     
 
-    with open(os.path.join(folder_path, names_ids[chosen_artist] + ".json"), "r", encoding="UTF-8") as jsonfile:
+    with open(os.path.join(folder_path, names_ids[chosen_artist] + ".json"), "r", encoding="UTF-8") as jsonfile: # + ".json" because the value if just the id without the .json
 
         data = json.load(jsonfile)
 
@@ -84,9 +84,19 @@ def format_albums(unprocessed_albums):
                 year = release_date[:4]
                 month = int(release_date[5:7])
                 month = list_months[month - 1]
-                day = int(release_date[8:])
+                day = release_date[8:]
+                
+                    
+                if day[len(day) - 1] == "1":
+                    suffix = "st"
+                elif day[len(day) - 1] == "2":
+                    suffix = "nd"
+                elif day[len(day) - 1] == "3":
+                    suffix = "rd"
+                else:
+                    suffix = "th"
 
-                all_albums += f"\n\"{album}\" was released in {month} {day}th {year}."
+                all_albums += f"\n\"{album}\" was released in {month} {int(day)}{suffix} {year}."
 
             else: 
 
@@ -131,7 +141,7 @@ Choose one of the options bellow:
                     chosen_artist = input("Please input the name of an artist: ")
                     chosen_artist = fix_capitalization(names_ids, chosen_artist)
 
-                    unprocessed_albums = get_albums(names_ids, chosen_artist)
+                    unprocessed_albums = get_artist_albums(names_ids, chosen_artist)
                 
                     if chosen_artist in names_ids:
                         print(f"Listing all available albums from {chosen_artist}...{format_albums(unprocessed_albums)}")          
