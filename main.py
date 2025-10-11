@@ -20,8 +20,8 @@ def get_artist_info(info_one, info_two): # Maybe change names. Cant think of any
         with open(os.path.join(folder_path, filename),"r") as file: 
             data = json.load(file)
 
-            dict_artist_info[data[info_one]] = data[info_two] + ".json" #add the info_one as key and the info_two as value
-
+            dict_artist_info[data[info_one]] = data[info_two]  #add the info_one as key and the info_two as value  
+                                                                        #add the ".json" later??????
     return dict_artist_info
 
 
@@ -42,7 +42,7 @@ def get_albums(names_ids, chosen_artist):
     folder_path = os.path.join(directory, "dataset/albums/")
     
 
-    with open(os.path.join(folder_path, names_ids[chosen_artist]), "r", encoding="UTF-8") as jsonfile:
+    with open(os.path.join(folder_path, names_ids[chosen_artist] + ".json"), "r", encoding="UTF-8") as jsonfile:
 
         data = json.load(jsonfile)
 
@@ -61,16 +61,15 @@ def format_albums(unprocessed_albums):
     all_albums = ""
 
     for i in range(len(unprocessed_albums)):
-        if unprocessed_albums[i]["album_type"] == "album":
+        
             album = unprocessed_albums[i]["name"]
             release_date = unprocessed_albums[i]["release_date"]
-#make the release date to function
 
             if len(release_date) == 4:
 
                 year = release_date[:4]
 
-                all_albums += f"\n\"{album}\" was released in {year}"
+                all_albums += f"\n\"{album}\" was released in {year}."
 
             elif len(release_date) == 7:
 
@@ -78,7 +77,7 @@ def format_albums(unprocessed_albums):
                 month = int(release_date[5:7])
                 month = list_months[month - 1]
 
-                all_albums += f"\n\"{album}\" was released in {month} {year}"
+                all_albums += f"\n\"{album}\" was released in {month} {year}."
 
             elif len(release_date) == 10:
 
@@ -87,11 +86,11 @@ def format_albums(unprocessed_albums):
                 month = list_months[month - 1]
                 day = int(release_date[8:])
 
-                all_albums += f"\n\"{album}\" was released in {month} {day}th {year}"
+                all_albums += f"\n\"{album}\" was released in {month} {day}th {year}."
 
             else: 
 
-                all_albums += f"\n\"{album}\" is not none when it was released"
+                all_albums += f"\n\"{album}\" is not none when it was released."
 
 
     return all_albums
