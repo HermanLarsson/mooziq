@@ -1,27 +1,36 @@
+
 import json, os
 
 
 
-def get_artist_info(info_one, info_two): # Maybe change names. Cant think of anything else now
+def get_files(folder): # Maybe change names. Cant think of anything else now
 
     directory = os.path.dirname(os.path.abspath(__file__))
-    folder_path = os.path.join(directory, "dataset/artists/")
+    folder_path = os.path.join(directory, "dataset" , folder)
 
     all_filenames = []
     sorted_filenames = []
-    dict_artist_info = {}
 
     for filename in os.listdir(folder_path): #iteratis over all the files in the directory and append them in a list
         all_filenames.append(filename)
 
     sorted_filenames = sorted(all_filenames)
 
+    return sorted_filenames
+
+
+def get_names_ids(sorted_filenames, folder):
+
+    directory = os.path.dirname(os.path.abspath(__file__))
+    folder_path = os.path.join(directory, "dataset" , folder)
+
+    dict_artist_info = {}
     for filename in sorted_filenames: 
         with open(os.path.join(folder_path, filename),"r") as file: 
             data = json.load(file)
 
-            dict_artist_info[data[info_one]] = data[info_two]  #add the info_one as key and the info_two as value  
-                                                                        
+            dict_artist_info[data["name"]] = data["id"]
+                       
     return dict_artist_info
 
 
@@ -36,6 +45,7 @@ def fix_capitalization(names_ids, chosen_artist):
     #       chosen_artist = names.ids
     return chosen_artist
     
+    
 def get_artist_albums(names_ids, chosen_artist):  
 
     directory = os.path.dirname(os.path.abspath(__file__))
@@ -49,6 +59,7 @@ def get_artist_albums(names_ids, chosen_artist):
     unprocessed_albums = data["items"]
 
     return unprocessed_albums
+
 
 
 def format_albums(unprocessed_albums):
@@ -134,10 +145,12 @@ Choose one of the options bellow:
             menu_option = int(menu_option)
             match menu_option:
                 case 1: 
-                    names_ids = get_artist_info("name", "id") #pass two parameters
+                    sorted_filenames = get_files("artists")
+                    names_ids = get_names_ids(sorted_filenames, "artists") 
                     #function to print names from names_ids :)
                 case 2:
-                    names_ids = get_artist_info("name", "id")
+                    sorted_filenames = get_files("artists")
+                    names_ids = get_names_ids(sorted_filenames, "artists")
                     chosen_artist = input("Please input the name of an artist: ")
                     chosen_artist = fix_capitalization(names_ids, chosen_artist)
 
