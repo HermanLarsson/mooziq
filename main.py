@@ -69,7 +69,7 @@ def format_albums(unprocessed_albums):
 
                 year = release_date[:4]
 
-                all_albums += f"\n\"{album}\" was released in {year}."
+                all_albums += f"\n- \"{album}\" was released in {year}."
 
             elif len(release_date) == 7:
 
@@ -77,7 +77,7 @@ def format_albums(unprocessed_albums):
                 month = int(release_date[5:7])
                 month = list_months[month - 1]
 
-                all_albums += f"\n\"{album}\" was released in {month} {year}."
+                all_albums += f"\n- \"{album}\" was released in {month} {year}."
 
             elif len(release_date) == 10:
 
@@ -87,20 +87,20 @@ def format_albums(unprocessed_albums):
                 day = release_date[8:]
                 
                     
-                if day[len(day) - 1] == "1":
+                if day[len(day) - 1] == "1" and day != "11":
                     suffix = "st"
-                elif day[len(day) - 1] == "2":
+                elif day[len(day) - 1] == "2" and day != "12":
                     suffix = "nd"
-                elif day[len(day) - 1] == "3":
+                elif day[len(day) - 1] == "3" and day != "13":
                     suffix = "rd"
                 else:
                     suffix = "th"
 
-                all_albums += f"\n\"{album}\" was released in {month} {int(day)}{suffix} {year}."
+                all_albums += f"\n- \"{album}\" was released in {month} {int(day)}{suffix} {year}."
 
             else: 
 
-                all_albums += f"\n\"{album}\" is not none when it was released."
+                all_albums += f"\n- \"{album}\" is not none when it was released."
 
 
     return all_albums
@@ -140,7 +140,8 @@ Choose one of the options bellow:
                     names_ids = get_artist_info("name", "id")
                     chosen_artist = input("Please input the name of an artist: ")
                     chosen_artist = fix_capitalization(names_ids, chosen_artist)
-                    
+
+                
                     if chosen_artist in names_ids:
                         unprocessed_albums = get_artist_albums(names_ids, chosen_artist)
                         print(f"Listing all available albums from {chosen_artist}...{format_albums(unprocessed_albums)}")          
