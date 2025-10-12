@@ -140,10 +140,9 @@ Choose one of the options bellow:
                     names_ids = get_artist_info("name", "id")
                     chosen_artist = input("Please input the name of an artist: ")
                     chosen_artist = fix_capitalization(names_ids, chosen_artist)
-
-                    unprocessed_albums = get_artist_albums(names_ids, chosen_artist)
-                
+                    
                     if chosen_artist in names_ids:
+                        unprocessed_albums = get_artist_albums(names_ids, chosen_artist)
                         print(f"Listing all available albums from {chosen_artist}...{format_albums(unprocessed_albums)}")          
 
                 case 3:
