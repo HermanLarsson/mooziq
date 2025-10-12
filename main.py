@@ -1,12 +1,18 @@
 
 import json, os
 
+DIRECTORY = os.path.dirname(os.path.abspath(__file__)) # directory constat since the filepath up to dataset will always be the same
 
+'''
+Hello evvryboda!
+The get_files() and get_names_ids() are functions that can be used for multiple tasks 
+so try to use them for as much as you can
+PS, the get_names_ids() saves names as keys and ids as value. 
+If you want to use the ids as filenames you need to include ".json" in the filepath ;)
+'''
+def get_files(folder): 
 
-def get_files(folder): # Maybe change names. Cant think of anything else now
-
-    directory = os.path.dirname(os.path.abspath(__file__))
-    folder_path = os.path.join(directory, "dataset" , folder)
+    folder_path = os.path.join(DIRECTORY, "dataset" , folder)
 
     all_filenames = []
     sorted_filenames = []
@@ -21,8 +27,7 @@ def get_files(folder): # Maybe change names. Cant think of anything else now
 
 def get_names_ids(sorted_filenames, folder):
 
-    directory = os.path.dirname(os.path.abspath(__file__))
-    folder_path = os.path.join(directory, "dataset" , folder)
+    folder_path = os.path.join(DIRECTORY, "dataset" , folder)
 
     dict_artist_info = {}
     for filename in sorted_filenames: 
@@ -40,18 +45,14 @@ def fix_capitalization(names_ids, chosen_artist):
     for key in names_ids:   #perhaps find different way since it doesnt need to iterate thru the whole list every time.
         if chosen_artist.lower() == key.lower():
             chosen_artist = key
-    #while chosen_artist not in names.ids:
-    #    if chosen_artist.lower() == names.ids.lower()
-    #       chosen_artist = names.ids
+
     return chosen_artist
     
     
 def get_artist_albums(names_ids, chosen_artist):  
 
-    directory = os.path.dirname(os.path.abspath(__file__))
-    folder_path = os.path.join(directory, "dataset/albums/")
+    folder_path = os.path.join(DIRECTORY, "dataset/albums/")
     
-
     with open(os.path.join(folder_path, names_ids[chosen_artist] + ".json"), "r", encoding="UTF-8") as jsonfile: # + ".json" because the value if just the id without the .json
 
         data = json.load(jsonfile)
