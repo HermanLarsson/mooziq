@@ -1,5 +1,5 @@
 import json, os
-
+from loaders import get_names_ids
 DIRECTORY = os.path.dirname(os.path.abspath(__file__)) # directory constat since the filepath up to dataset will always be the same
 
 '''
@@ -18,24 +18,10 @@ def get_files(folder):
 
     for filename in os.listdir(folder_path): #iteratis over all the files in the directory and append them in a list
         all_filenames.append(filename)
-
     sorted_filenames = sorted(all_filenames)
 
     return sorted_filenames
 
-
-def get_names_ids(sorted_filenames, folder):
-
-    folder_path = os.path.join(DIRECTORY, "dataset" , folder)
-
-    dict_artist_info = {}
-    for filename in sorted_filenames: 
-        with open(os.path.join(folder_path, filename),"r") as file: 
-            data = json.load(file)
-
-            dict_artist_info[data["name"]] = data["id"]
-                       
-    return dict_artist_info
 
 
 
@@ -186,12 +172,10 @@ Choose one of the options bellow:
             menu_option = int(menu_option)
             match menu_option:
                 case 1:
-                    sorted_filenames = get_files("artists")
-                    names_ids = get_names_ids(sorted_filenames, "artists")
+                    names_ids = get_names_ids()
                     get_artists(names_ids)
                 case 2:
-                    sorted_filenames = get_files("artists")
-                    names_ids = get_names_ids(sorted_filenames, "artists")
+                    names_ids = get_names_ids()
                     chosen_artist = input("Please input the name of an artist: ")
                     chosen_artist = fix_capitalization(names_ids, chosen_artist)
 
@@ -205,8 +189,7 @@ Choose one of the options bellow:
                 case 4:
                     pass
                 case 5:
-                    sorted_filenames = get_files("artists")
-                    names_ids = get_names_ids(sorted_filenames, "artists")
+                    names_ids = get_names_ids()
                     sort_albums_release(names_ids)
                 case 6:
                     pass
