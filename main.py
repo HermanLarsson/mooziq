@@ -1,4 +1,3 @@
-
 import json, os
 
 DIRECTORY = os.path.dirname(os.path.abspath(__file__)) # directory constat since the filepath up to dataset will always be the same
@@ -40,20 +39,28 @@ def get_names_ids(sorted_filenames, folder):
 
 
 
-
 def fix_capitalization(names_ids, chosen_artist):
     for key in names_ids:   #perhaps find different way since it doesnt need to iterate thru the whole list every time.
         if chosen_artist.lower() == key.lower():
             chosen_artist = key
 
     return chosen_artist
+
+
+# Task 1
+
+
+def get_artists(names_ids):
+    print("Artists found in the database: \n")
+    for artists in names_ids:
+        print(f"- {artists}")
     
     
 def get_artist_albums(names_ids, chosen_artist):  
 
     folder_path = os.path.join(DIRECTORY, "dataset/albums/")
     
-    with open(os.path.join(folder_path, names_ids[chosen_artist] + ".json"), "r", encoding="UTF-8") as jsonfile: # + ".json" because the value if just the id without the .json
+    with open(os.path.join(folder_path, names_ids[chosen_artist] + ".json"), "r", encoding="UTF-8") as jsonfile:
 
         data = json.load(jsonfile)
 
@@ -117,6 +124,39 @@ def format_albums(unprocessed_albums):
 
     return all_albums
 
+
+
+ # Task 5
+
+def sort_albums_release(names_ids):
+    search_year = input("What year?: ")
+    print(f"Albums released in the year {search_year}:")
+    reversed_dict = {value: key for key, value in names_ids.items()} # Reverses the dictionary so value (id) becomes key.
+    albums_list = []
+
+    folder_path = os.path.join("dataset", "albums")
+    for file_name in sorted(os.listdir(folder_path)):
+        file_path = os.path.join(folder_path, file_name)
+        artist_id = os.path.splitext(file_name)[0]    # Splits the filename into "id", ".json"
+        with open(file_path, "r", encoding="utf-8") as file:
+            data = json.load(file)
+            albums_info = data["items"]    
+            for item in albums_info:
+                release_date = item["release_date"]
+                release_year = release_date[:4]
+                album_name = item["name"]
+                artist_name = reversed_dict.get(artist_id)
+                if release_year == search_year:
+                    albums_list.append((album_name, artist_name))
+                albums_list.sort()
+    if len(albums_list) == 0:
+        print(f"No albums were released in the year {search_year}.")
+    else:  
+        for albums, artist in albums_list:
+            print(f"- \"{albums}\" by {artist}.")
+
+
+
 def main():
 
     main_menu = """
@@ -145,10 +185,10 @@ Choose one of the options bellow:
             
             menu_option = int(menu_option)
             match menu_option:
-                case 1: 
+                case 1:
                     sorted_filenames = get_files("artists")
-                    names_ids = get_names_ids(sorted_filenames, "artists") 
-                    #function to print names from names_ids :)
+                    names_ids = get_names_ids(sorted_filenames, "artists")
+                    get_artists(names_ids)
                 case 2:
                     sorted_filenames = get_files("artists")
                     names_ids = get_names_ids(sorted_filenames, "artists")
@@ -165,7 +205,9 @@ Choose one of the options bellow:
                 case 4:
                     pass
                 case 5:
-                    pass
+                    sorted_filenames = get_files("artists")
+                    names_ids = get_names_ids(sorted_filenames, "artists")
+                    sort_albums_release(names_ids)
                 case 6:
                     pass
                 case 7:
@@ -184,4 +226,3 @@ Choose one of the options bellow:
 
 if __name__ == "__main__":
     main()
-    
