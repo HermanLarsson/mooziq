@@ -1,5 +1,6 @@
 import json, os
-from loaders import get_names_ids
+import re
+from loaders import get_names_ids, load_song_data
 DIRECTORY = os.path.dirname(os.path.abspath(__file__)) # directory constat since the filepath up to dataset will always be the same
 
 '''
@@ -90,8 +91,8 @@ def format_albums(unprocessed_albums):
                 month = int(release_date[5:7])
                 month = list_months[month - 1]
                 day = release_date[8:]
-                
-                    
+
+
                 if day[len(day) - 1] == "1" and day != "11":
                     suffix = "st"
                 elif day[len(day) - 1] == "2" and day != "12":
@@ -106,7 +107,6 @@ def format_albums(unprocessed_albums):
             else: 
 
                 all_albums += f"\n- \"{album}\" is not none when it was released."
-
 
     return all_albums
 
@@ -123,7 +123,7 @@ def sort_albums_release(names_ids):
     folder_path = os.path.join("dataset", "albums")
     for file_name in sorted(os.listdir(folder_path)):
         file_path = os.path.join(folder_path, file_name)
-        artist_id = os.path.splitext(file_name)[0]    # Splits the filename into "id", ".json"
+        artist_id = os.path.splitext(file_name)[0]    
         with open(file_path, "r", encoding="utf-8") as file:
             data = json.load(file)
             albums_info = data["items"]    
@@ -140,6 +140,24 @@ def sort_albums_release(names_ids):
     else:  
         for albums, artist in albums_list:
             print(f"- \"{albums}\" by {artist}.")
+
+
+# Task 7
+def get_longest_sequence():
+    matches_dict = load_song_data()
+    song_choice = int(input("Please select one of the following songs (number): "))
+    if song_choice in matches_dict:
+        lyrics = matches_dict[song_choice]["lyrics"]
+        lower_lyrics = lyrics.lower()
+        filtered_lyrics = re.split(r'[,.\'\n\r ]', lower_lyrics)
+        word_list = []
+        for words in filtered_lyrics:
+            if words not in word_list:
+                word_list.append(words)
+
+        print(f"The length of the longest unique word sequence in {matches_dict[song_choice]["title"]} is {len(word_list)} ")
+            
+        print(word_list)  
 
 
 
@@ -183,7 +201,6 @@ Choose one of the options bellow:
                     if chosen_artist in names_ids:
                         unprocessed_albums = get_artist_albums(names_ids, chosen_artist)
                         print(f"Listing all available albums from {chosen_artist}...{format_albums(unprocessed_albums)}")          
-
                 case 3:
                     pass
                 case 4:
@@ -194,7 +211,7 @@ Choose one of the options bellow:
                 case 6:
                     pass
                 case 7:
-                    pass
+                    get_longest_sequence()
                 case 8:
                     pass
                 case 9:
@@ -209,3 +226,4 @@ Choose one of the options bellow:
 
 if __name__ == "__main__":
     main()
+    
