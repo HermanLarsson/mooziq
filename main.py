@@ -112,7 +112,9 @@ def get_top_tracks(names_ids):
     popularity_list = [] 
     artist_exists = False
 
-    for artist_name in names_ids.keys():
+    #can be improved, calling another function for the error handeling and by using try instead. 
+
+    for artist_name in names_ids:
         if artist_name.lower() == user_artist.lower():
             user_artist = artist_name
             artist_exists = True
@@ -123,8 +125,8 @@ def get_top_tracks(names_ids):
         
         print(f"Listing top tracks for {user_artist}...")
 
-        for track in data['tracks']:
-            popularity_list.append((track['name'], track['popularity']))
+        for track in data["tracks"]:
+            popularity_list.append((track["name"], track["popularity"]))
 
         for song, popularity in popularity_list:
             if popularity <= 30:
@@ -169,6 +171,10 @@ def sort_albums_release(names_ids):
         for albums, artist in albums_list:
             print(f"- \"{albums}\" by {artist}.")
 
+# Task 6
+
+def get_moosed(names_ids):
+    pass
 
 # Task 7
 def get_longest_sequence():
@@ -224,7 +230,6 @@ Choose one of the options bellow:
                     names_ids = get_names_ids()
                     chosen_artist = input("Please input the name of an artist: ")
                     chosen_artist = fix_capitalization(names_ids, chosen_artist)
-
                 
                     if chosen_artist in names_ids:
                         unprocessed_albums = get_artist_albums(names_ids, chosen_artist)
@@ -239,7 +244,8 @@ Choose one of the options bellow:
                     names_ids = get_names_ids()
                     sort_albums_release(names_ids)
                 case 6:
-                    pass
+                    names_ids = get_names_ids()
+                    get_moosed(names_ids)
                 case 7:
                     get_longest_sequence()
                 case 8:
