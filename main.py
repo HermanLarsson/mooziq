@@ -23,9 +23,6 @@ def get_files(folder):
 
     return sorted_filenames
 
-
-
-
 def fix_capitalization(names_ids, chosen_artist):
     for key in names_ids:   #perhaps find different way since it doesnt need to iterate thru the whole list every time.
         if chosen_artist.lower() == key.lower():
@@ -33,16 +30,13 @@ def fix_capitalization(names_ids, chosen_artist):
 
     return chosen_artist
 
-
 # Task 1
-
 
 def get_artists(names_ids):
     print("Artists found in the database: \n")
     for artists in names_ids:
         print(f"- {artists}")
-    
-    
+       
 def get_artist_albums(names_ids, chosen_artist):  
 
     folder_path = os.path.join(DIRECTORY, "dataset/albums/")
@@ -54,8 +48,6 @@ def get_artist_albums(names_ids, chosen_artist):
     unprocessed_albums = data["items"]
 
     return unprocessed_albums
-
-
 
 def format_albums(unprocessed_albums):
 
@@ -111,8 +103,44 @@ def format_albums(unprocessed_albums):
     return all_albums
 
 
+#Task 3
 
- # Task 5
+def get_top_tracks(names_ids):
+    
+    folder_path = os.path.join(DIRECTORY, "dataset/top_tracks/")
+    user_artist = input(f"Please input the name of an artist: ")
+    popularity_list = [] 
+    artist_exists = False
+
+    for artist_name in names_ids.keys():
+        if artist_name.lower() == user_artist.lower():
+            user_artist = artist_name
+            artist_exists = True
+            
+    if artist_exists == True:
+        with open(os.path.join(folder_path, names_ids[user_artist] + ".json"), "r", encoding="UTF-8") as jsonfile:
+            data = json.load(jsonfile)
+        
+        print(f"Listing top tracks for {user_artist}...")
+
+        for track in data['tracks']:
+            popularity_list.append((track['name'], track['popularity']))
+
+        for song, popularity in popularity_list:
+            if popularity <= 30:
+                text = "No one knows this song."
+            elif popularity <= 50:
+                text = "Popular song."
+            elif popularity <= 70:
+                text = "It is quite popular now!"
+            elif popularity >= 71:
+                text = "It is made for the charts!"
+
+            print(f'- "{song}" has a popularity score of {popularity}. {text}')
+
+    return popularity_list
+
+# Task 5
 
 def sort_albums_release(names_ids):
     search_year = input("What year?: ")
@@ -202,7 +230,9 @@ Choose one of the options bellow:
                         unprocessed_albums = get_artist_albums(names_ids, chosen_artist)
                         print(f"Listing all available albums from {chosen_artist}...{format_albums(unprocessed_albums)}")          
                 case 3:
-                    pass
+                    names_ids = get_names_ids()
+                    get_artists(names_ids)
+                    get_top_tracks(names_ids)
                 case 4:
                     pass
                 case 5:
