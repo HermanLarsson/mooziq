@@ -1,15 +1,10 @@
-import json, os
-import re
-from loaders import get_names_ids, load_song_data
+import json, os, csv, re
+
+from loaders import get_names_ids, load_song_data, get_chosen_artist, get_artist_albums
+
 DIRECTORY = os.path.dirname(os.path.abspath(__file__)) # directory constat since the filepath up to dataset will always be the same
 
-'''
-Hello evvryboda!
-The get_files() and get_names_ids() are functions that can be used for multiple tasks 
-so try to use them for as much as you can
-PS, the get_names_ids() saves names as keys and ids as value. 
-If you want to use the ids as filenames you need to include ".json" in the filepath ;)
-'''
+
 def get_files(folder): 
 
     folder_path = os.path.join(DIRECTORY, "dataset" , folder)
@@ -23,31 +18,15 @@ def get_files(folder):
 
     return sorted_filenames
 
-def fix_capitalization(names_ids, chosen_artist):
-    for key in names_ids:   #perhaps find different way since it doesnt need to iterate thru the whole list every time.
-        if chosen_artist.lower() == key.lower():
-            chosen_artist = key
-
-    return chosen_artist
-
 # Task 1
 
 def get_artists(names_ids):
-    print("Artists found in the database: \n")
+
     for artists in names_ids:
         print(f"- {artists}")
-       
-def get_artist_albums(names_ids, chosen_artist):  
 
-    folder_path = os.path.join(DIRECTORY, "dataset/albums/")
-    
-    with open(os.path.join(folder_path, names_ids[chosen_artist] + ".json"), "r", encoding="UTF-8") as jsonfile:
 
-        data = json.load(jsonfile)
-
-    unprocessed_albums = data["items"]
-
-    return unprocessed_albums
+# Task 2
 
 def format_albums(unprocessed_albums):
 
@@ -105,42 +84,119 @@ def format_albums(unprocessed_albums):
 
 #Task 3
 
-def get_top_tracks(names_ids):
+def get_tracks(names_ids, chosen_artist):
     
     folder_path = os.path.join(DIRECTORY, "dataset/top_tracks/")
-    user_artist = input(f"Please input the name of an artist: ")
     popularity_list = [] 
-    artist_exists = False
 
-    #can be improved, calling another function for the error handeling and by using try instead. 
-
-    for artist_name in names_ids:
-        if artist_name.lower() == user_artist.lower():
-            user_artist = artist_name
-            artist_exists = True
-            
-    if artist_exists == True:
-        with open(os.path.join(folder_path, names_ids[user_artist] + ".json"), "r", encoding="UTF-8") as jsonfile:
-            data = json.load(jsonfile)
+    with open(os.path.join(folder_path, names_ids[chosen_artist] + ".json"), "r", encoding="UTF-8") as jsonfile:
+        data = json.load(jsonfile)
         
-        print(f"Listing top tracks for {user_artist}...")
-
-        for track in data["tracks"]:
-            popularity_list.append((track["name"], track["popularity"]))
-
-        for song, popularity in popularity_list:
-            if popularity <= 30:
-                text = "No one knows this song."
-            elif popularity <= 50:
-                text = "Popular song."
-            elif popularity <= 70:
-                text = "It is quite popular now!"
-            elif popularity >= 71:
-                text = "It is made for the charts!"
-
-            print(f'- "{song}" has a popularity score of {popularity}. {text}')
+    
+    for track in data["tracks"]:
+        popularity_list.append((track["name"], track["popularity"]))
 
     return popularity_list
+    
+
+def format_tracks(popularity_list, chosen_artist):
+    print(f"Listing top tracks for {chosen_artist}...")
+
+    for song, popularity in popularity_list:
+        if popularity <= 30:
+            message = "No one knows this song."
+        elif popularity <= 50:
+            message = "Popular song."
+        elif popularity <= 70:
+            message = "It is quite popular now!"
+        elif popularity >= 71:
+            message = "It is made for the charts!"
+
+        print(f'- "{song}" has a popularity score of {popularity}. {message}')
+
+
+# Task 4
+
+def get_top_tracks(names_ids, artist_info, chosen_artist):
+    artist_popularity = get_tracks(names_ids, chosen_artist)
+ 
+    for i in range(0, 2):
+        artist_info.append(artist_popularity[i][0])
+
+
+def get_genres(chosen_artist):
+    genres_str = ""
+
+    dict_artist_info = {}
+
+    folder_path = os.path.join("dataset", "artists")
+    for file_name in sorted(os.listdir(folder_path)):
+        file_path = os.path.join(folder_path, file_name)
+        with open(file_path, "r", encoding="utf-8") as file:
+            data = json.load(file)
+
+            dict_artist_info[data["name"]] = data["genres"]
+                           
+    genres = dict_artist_info[chosen_artist]
+
+    if len(genres) > 0:
+        for i in range(len(genres)):
+            if i == 0:
+                genres_str += genres[0]
+            else:
+                genres_str += f", {genres[i]}"
+    else:
+        genres_str = ""
+
+    return genres_str
+
+
+def get_artist_info(names_ids, chosen_artist):
+
+    artist_info = list()
+    artist_info.append(names_ids[chosen_artist])
+    artist_info.append(chosen_artist)
+    artist_info.append(len(get_artist_albums(names_ids, chosen_artist)))
+
+    get_top_tracks(names_ids, artist_info, chosen_artist)
+
+    artist_info.append(get_genres(chosen_artist))
+
+    return artist_info
+
+def read_write_csv(artist_info, chosen_artist):
+
+    header = ["artist_id", "artist_name", "number_of_albums", "top_track_1", "top_track_2", "genres"]
+
+    csv_path = os.path.join(".", "dataset", "artist-data.csv")
+    if not os.path.isfile(csv_path):
+        with open(csv_path, "w", encoding="UTF-8", newline="\n") as file:
+            writer = csv.writer(file)
+            writer.writerow(header)
+
+
+    with open(csv_path, "r+", encoding="UTF-8", newline="\n") as file:
+        data = list(csv.reader(file))
+
+    found_artist = False    
+    for i in range(1, len(data)):
+        if data[i][1] == chosen_artist:
+            data[i] = artist_info
+            found_artist = True
+
+    if found_artist:
+        with open(csv_path, "w", encoding="UTF-8", newline="\n") as file:
+            writer = csv.writer(file)    
+            writer.writerows(data)
+        #print(f"\nExporting \"{chosen_artist}\" data to CSV file...\nData successfully updated!")
+        print(f"exporting \"{chosen_artist}\" datatocsvfile...datasuccessfullyupdated.")
+
+    else:
+        with open(csv_path, "a", encoding="UTF-8", newline="\n") as file:
+            writer = csv.writer(file)    
+            writer.writerow(artist_info)
+        #print(f"\nExporting \"{chosen_artist}\" data to CSV file...\nData successfully appended!")
+        print(f"exporting \"{chosen_artist}\" datatocsvfile...datasuccessfullyappended.")
 
 # Task 5
 
@@ -196,11 +252,10 @@ def get_longest_sequence():
 
 
 def main():
-
+    print("""Welcome to Mooziq!
+Choose one of the options bellow:""")
+    
     main_menu = """
-Welcome to Mooziq!
-Choose one of the options bellow:
-
 1. Get All Artists
 2. Get All Albums By An Artist
 3. Get Top Tracks By An Artist
@@ -225,21 +280,35 @@ Choose one of the options bellow:
             match menu_option:
                 case 1:
                     names_ids = get_names_ids()
+                    print("Artists found in the database: \n")
                     get_artists(names_ids)
                 case 2:
                     names_ids = get_names_ids()
-                    chosen_artist = input("Please input the name of an artist: ")
-                    chosen_artist = fix_capitalization(names_ids, chosen_artist)
+                    chosen_artist = get_chosen_artist(names_ids)
                 
                     if chosen_artist in names_ids:
                         unprocessed_albums = get_artist_albums(names_ids, chosen_artist)
-                        print(f"Listing all available albums from {chosen_artist}...{format_albums(unprocessed_albums)}")          
+                        print(f"Listing all available albums from {chosen_artist}...{format_albums(unprocessed_albums)}")
+
                 case 3:
                     names_ids = get_names_ids()
                     get_artists(names_ids)
-                    get_top_tracks(names_ids)
+                    chosen_artist = get_chosen_artist(names_ids)
+                    try:
+                        popularity_list = get_tracks(names_ids, chosen_artist)
+                        format_tracks(popularity_list, chosen_artist)
+                    except KeyError:
+                        print()
                 case 4:
-                    pass
+                    names_ids = get_names_ids()
+                    get_artists(names_ids)
+                    try:
+                        chosen_artist = get_chosen_artist(names_ids)
+                        artist_info = get_artist_info(names_ids, chosen_artist)
+                        read_write_csv(artist_info, chosen_artist)
+                    except KeyError:
+                        print()
+
                 case 5:
                     names_ids = get_names_ids()
                     sort_albums_release(names_ids)

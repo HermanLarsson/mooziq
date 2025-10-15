@@ -2,7 +2,7 @@ import os, json
 
 DIRECTORY = os.path.dirname(os.path.abspath(__file__)) # directory constat since the filepath up to dataset will always be the same
 
-
+# All tasks ish
 def get_names_ids():
 
     dict_artist_info = {}
@@ -13,6 +13,32 @@ def get_names_ids():
             data = json.load(file)
             dict_artist_info[data["name"]] = data["id"] 
     return dict_artist_info
+
+# Task 2, 4
+
+def get_chosen_artist(names_ids):
+    chosen_artist = input("Please input the name of one of the following artists:\n")
+    
+    for key in names_ids: 
+        if chosen_artist.lower() == key.lower():
+            chosen_artist = key
+
+    return chosen_artist
+
+def get_artist_albums(names_ids, chosen_artist):  
+
+    folder_path = os.path.join(DIRECTORY, "dataset/albums/")
+    
+    with open(os.path.join(folder_path, names_ids[chosen_artist] + ".json"), "r", encoding="UTF-8") as jsonfile:
+
+        data = json.load(jsonfile)
+
+    unprocessed_albums = data["items"]
+
+    return unprocessed_albums
+
+
+# Task 5
 
 def load_song_data():
     index = 0
