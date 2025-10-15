@@ -14,7 +14,15 @@ def get_names_ids():
             dict_artist_info[data["name"]] = data["id"] 
     return dict_artist_info
 
-# Task 2, 4
+# Task 1
+
+def get_artists(names_ids):
+
+    for artists in names_ids:
+        print(f"- {artists}")
+
+
+# Task 2, 3, 4
 
 def get_chosen_artist(names_ids):
     chosen_artist = input("Please input the name of one of the following artists:\n")

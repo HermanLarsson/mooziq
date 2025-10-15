@@ -1,29 +1,8 @@
 import json, os, csv, re
 
-from loaders import get_names_ids, load_song_data, get_chosen_artist, get_artist_albums, filter_song_lyrics
+from loaders import get_names_ids, load_song_data, get_chosen_artist, get_artist_albums, filter_song_lyrics, get_artists
 
 DIRECTORY = os.path.dirname(os.path.abspath(__file__)) # directory constat since the filepath up to dataset will always be the same
-
-
-def get_files(folder): 
-
-    folder_path = os.path.join(DIRECTORY, "dataset" , folder)
-
-    all_filenames = []
-    sorted_filenames = []
-
-    for filename in os.listdir(folder_path): #iteratis over all the files in the directory and append them in a list
-        all_filenames.append(filename)
-    sorted_filenames = sorted(all_filenames)
-
-    return sorted_filenames
-
-# Task 1
-
-def get_artists(names_ids):
-
-    for artists in names_ids:
-        print(f"- {artists}")
 
 
 # Task 2
@@ -284,11 +263,9 @@ Choose one of the options bellow:""")
     while menu_option != 10:
         
         print(main_menu)
-        menu_option = input("Type your option:\n")
+        try:
+            menu_option = int(input("Type your option:\n"))
 
-        if menu_option.isdigit():
-            
-            menu_option = int(menu_option)
             match menu_option:
                 case 1:
                     names_ids = get_names_ids()
@@ -298,11 +275,9 @@ Choose one of the options bellow:""")
                     names_ids = get_names_ids()
                     get_artists(names_ids)
                     chosen_artist = get_chosen_artist(names_ids)
-                
                     if chosen_artist in names_ids:
                         unprocessed_albums = get_artist_albums(names_ids, chosen_artist)
                         print(f"Listing all available albums from {chosen_artist}...{format_albums(unprocessed_albums)}")
-
                 case 3:
                     names_ids = get_names_ids()
                     get_artists(names_ids)
@@ -321,7 +296,6 @@ Choose one of the options bellow:""")
                         read_write_csv(artist_info, chosen_artist)
                     except KeyError:
                         print()
-
                 case 5:
                     names_ids = get_names_ids()
                     sort_albums_release(names_ids)
@@ -345,10 +319,12 @@ Choose one of the options bellow:""")
                 case 10:
                     print("Thank you for using Mooziq! Have a nice day :)")
                 case _:
-                    print("ERROR HANDLING")
-        
-        else:
-            print("ERROR HANDLING")
+                    pass
+
+        except ValueError:
+            pass
+        except TypeError:
+            pass
 
 if __name__ == "__main__":
     main()
