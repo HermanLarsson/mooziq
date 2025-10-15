@@ -1,6 +1,6 @@
 import json, os, csv, re
 
-from loaders import get_names_ids, load_song_data, get_chosen_artist, get_artist_albums
+from loaders import get_names_ids, load_song_data, get_chosen_artist, get_artist_albums, filter_song_lyrics
 
 DIRECTORY = os.path.dirname(os.path.abspath(__file__)) # directory constat since the filepath up to dataset will always be the same
 
@@ -188,22 +188,22 @@ def read_write_csv(artist_info, chosen_artist):
         with open(csv_path, "w", encoding="UTF-8", newline="\n") as file:
             writer = csv.writer(file)    
             writer.writerows(data)
-        #print(f"\nExporting \"{chosen_artist}\" data to CSV file...\nData successfully updated!")
-        print(f"exporting \"{chosen_artist}\" datatocsvfile...datasuccessfullyupdated.")
+        print(f"Exporting \"{chosen_artist}\" data to CSV file...\nData successfully updated.")
+        #print(f"exporting \"{chosen_artist}\" datatocsvfile...datasuccessfullyupdated.")
 
     else:
         with open(csv_path, "a", encoding="UTF-8", newline="\n") as file:
             writer = csv.writer(file)    
             writer.writerow(artist_info)
-        #print(f"\nExporting \"{chosen_artist}\" data to CSV file...\nData successfully appended!")
-        print(f"exporting \"{chosen_artist}\" datatocsvfile...datasuccessfullyappended.")
+        print(f"Exporting \"{chosen_artist}\" data to CSV file...\nData successfully appended.")
+        #print(f"exporting \"{chosen_artist}\" datatocsvfile...datasuccessfullyappended.")
 
 # Task 5
 
 def sort_albums_release(names_ids):
-    search_year = input("What year?: ")
+    search_year = input("Please enter a year:\n")
     print(f"Albums released in the year {search_year}:")
-    reversed_dict = {value: key for key, value in names_ids.items()} # Reverses the dictionary so value (id) becomes key.
+    reversed_dict = {value: key for key, value in names_ids.items()} 
     albums_list = []
 
     folder_path = os.path.join("dataset", "albums")
@@ -249,6 +249,18 @@ def get_longest_sequence():
             
         print(word_list)  
 
+def get_longest_sequence(matches_dict, song_choice, lyrics):
+    # Sliding window algorithm to get longest sequence
+    sequence_start = 0
+    longest_sequence = 0
+    index_mapping = {}
+    for i in range(len(lyrics)):
+        if lyrics[i] in index_mapping:
+            sequence_start = max(sequence_start, index_mapping[lyrics[i]] + 1)
+        index_mapping[lyrics[i]] = i
+        longest_sequence = max(longest_sequence, i - sequence_start + 1)
+    print(f"The length of the longest unique sequence in {matches_dict[song_choice]["title"]} is {(longest_sequence)}")
+
 
 
 def main():
@@ -272,7 +284,7 @@ Choose one of the options bellow:""")
     while menu_option != 10:
         
         print(main_menu)
-        menu_option = input("Type your option: ")
+        menu_option = input("Type your option:\n")
 
         if menu_option.isdigit():
             
@@ -280,10 +292,11 @@ Choose one of the options bellow:""")
             match menu_option:
                 case 1:
                     names_ids = get_names_ids()
-                    print("Artists found in the database: \n")
+                    print("Artists found in the database:")
                     get_artists(names_ids)
                 case 2:
                     names_ids = get_names_ids()
+                    get_artists(names_ids)
                     chosen_artist = get_chosen_artist(names_ids)
                 
                     if chosen_artist in names_ids:
@@ -316,7 +329,15 @@ Choose one of the options bellow:""")
                     names_ids = get_names_ids()
                     get_moosed(names_ids)
                 case 7:
-                    get_longest_sequence()
+                    matches_dict = load_song_data()
+                    try:
+                        song_choice = int(input("Please select one of the following songs (number): "))
+                        lyrics = filter_song_lyrics(song_choice, matches_dict)
+                        get_longest_sequence(matches_dict, song_choice, lyrics)
+                    except ValueError:
+                        print("")
+                    except TypeError:
+                        print("")
                 case 8:
                     pass
                 case 9:
