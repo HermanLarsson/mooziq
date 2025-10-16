@@ -1,9 +1,15 @@
-import json, os, csv, re
+import re, string
 
-from loaders import get_names_ids, load_song_data, get_chosen_artist, get_artist_albums, filter_song_lyrics, get_artists
+from data_loader import *
 
 DIRECTORY = os.path.dirname(os.path.abspath(__file__)) # directory constat since the filepath up to dataset will always be the same
 
+# Task 1
+
+def get_artists(names_ids):
+
+    for artists in names_ids:
+        print(f"- {artists}")
 
 # Task 2
 
@@ -61,24 +67,8 @@ def format_albums(unprocessed_albums):
 
     return all_albums
 
-
 #Task 3
-
-def get_tracks(names_ids, chosen_artist):
     
-    folder_path = os.path.join(DIRECTORY, "dataset/top_tracks/")
-    popularity_list = [] 
-
-    with open(os.path.join(folder_path, names_ids[chosen_artist] + ".json"), "r", encoding="UTF-8") as jsonfile:
-        data = json.load(jsonfile)
-        
-    
-    for track in data["tracks"]:
-        popularity_list.append((track["name"], track["popularity"]))
-
-    return popularity_list
-    
-
 def format_tracks(popularity_list, chosen_artist):
     print(f"Listing top tracks for {chosen_artist}...")
 
@@ -92,44 +82,15 @@ def format_tracks(popularity_list, chosen_artist):
         elif popularity >= 71:
             message = "It is made for the charts!"
 
-        print(f'- "{song}" has a popularity score of {popularity}. {message}')
-
+        print(f"- \"{song}\" has a popularity score of {popularity}. {message}")
 
 # Task 4
 
-def get_top_tracks(names_ids, artist_info, chosen_artist):
-    artist_popularity = get_tracks(names_ids, chosen_artist)
+def get_num_tracks(names_ids, artist_info, chosen_artist, amount_tracks):
+    track_popularity = get_tracks(names_ids, chosen_artist)
  
-    for i in range(0, 2):
-        artist_info.append(artist_popularity[i][0])
-
-
-def get_genres(chosen_artist):
-    genres_str = ""
-
-    dict_artist_info = {}
-
-    folder_path = os.path.join("dataset", "artists")
-    for file_name in sorted(os.listdir(folder_path)):
-        file_path = os.path.join(folder_path, file_name)
-        with open(file_path, "r", encoding="utf-8") as file:
-            data = json.load(file)
-
-            dict_artist_info[data["name"]] = data["genres"]
-                           
-    genres = dict_artist_info[chosen_artist]
-
-    if len(genres) > 0:
-        for i in range(len(genres)):
-            if i == 0:
-                genres_str += genres[0]
-            else:
-                genres_str += f", {genres[i]}"
-    else:
-        genres_str = ""
-
-    return genres_str
-
+    for i in range(0, amount_tracks):
+        artist_info.append(track_popularity[i][0])
 
 def get_artist_info(names_ids, chosen_artist):
 
@@ -138,109 +99,107 @@ def get_artist_info(names_ids, chosen_artist):
     artist_info.append(chosen_artist)
     artist_info.append(len(get_artist_albums(names_ids, chosen_artist)))
 
-    get_top_tracks(names_ids, artist_info, chosen_artist)
+    get_num_tracks(names_ids, artist_info, chosen_artist, 2)
 
     artist_info.append(get_genres(chosen_artist))
 
     return artist_info
 
-def read_write_csv(artist_info, chosen_artist):
-
-    header = ["artist_id", "artist_name", "number_of_albums", "top_track_1", "top_track_2", "genres"]
-
-    csv_path = os.path.join(".", "dataset", "artist-data.csv")
-    if not os.path.isfile(csv_path):
-        with open(csv_path, "w", encoding="UTF-8", newline="\n") as file:
-            writer = csv.writer(file)
-            writer.writerow(header)
-
-
-    with open(csv_path, "r+", encoding="UTF-8", newline="\n") as file:
-        data = list(csv.reader(file))
-
-    found_artist = False    
-    for i in range(1, len(data)):
-        if data[i][1] == chosen_artist:
-            data[i] = artist_info
-            found_artist = True
-
-    if found_artist:
-        with open(csv_path, "w", encoding="UTF-8", newline="\n") as file:
-            writer = csv.writer(file)    
-            writer.writerows(data)
-        print(f"Exporting \"{chosen_artist}\" data to CSV file...\nData successfully updated.")
-        #print(f"exporting \"{chosen_artist}\" datatocsvfile...datasuccessfullyupdated.")
-
-    else:
-        with open(csv_path, "a", encoding="UTF-8", newline="\n") as file:
-            writer = csv.writer(file)    
-            writer.writerow(artist_info)
-        print(f"Exporting \"{chosen_artist}\" data to CSV file...\nData successfully appended.")
-        #print(f"exporting \"{chosen_artist}\" datatocsvfile...datasuccessfullyappended.")
-
 # Task 5
 
-def sort_albums_release(names_ids):
-    search_year = input("Please enter a year:\n")
-    print(f"Albums released in the year {search_year}:")
-    reversed_dict = {value: key for key, value in names_ids.items()} 
-    albums_list = []
-
-    folder_path = os.path.join("dataset", "albums")
-    for file_name in sorted(os.listdir(folder_path)):
-        file_path = os.path.join(folder_path, file_name)
-        artist_id = os.path.splitext(file_name)[0]    
-        with open(file_path, "r", encoding="utf-8") as file:
-            data = json.load(file)
-            albums_info = data["items"]    
-            for item in albums_info:
-                release_date = item["release_date"]
-                release_year = release_date[:4]
-                album_name = item["name"]
-                artist_name = reversed_dict.get(artist_id)
-                if release_year == search_year:
-                    albums_list.append((album_name, artist_name))
-                albums_list.sort()
-    if len(albums_list) == 0:
-        print(f"No albums were released in the year {search_year}.")
-    else:  
-        for albums, artist in albums_list:
-            print(f"- \"{albums}\" by {artist}.")
+def load_albums_year(names_ids):
+    try:
+        search_year = int(input("Please enter a year: \n"))
+        albums_list = sort_albums(names_ids, search_year)
+        if search_year >= 0:
+            print(f"Albums released in the year {search_year}:")
+            if len(albums_list) == 0:
+                print(f"No albums were released in the year {search_year}.")
+            else:  
+                for albums, artist in albums_list:
+                    print(f"- \"{albums}\" by {artist}.")
+        else:
+            print("Invalid input. Please type a positive integer as year.")
+    except ValueError:
+        print("Invalid input. Please input a positive integer as year.")
 
 # Task 6
 
-def get_moosed(names_ids):
-    pass
+def get_moosed(matches_dict):
+    try:
+        user_song = int(input(f"Please select one of the following songs (number): "))
+    
+        if user_song <= len(matches_dict) and user_song > 0:
+            lyric = matches_dict[user_song]["lyrics"]
+
+            pattern = "mo"
+            repl = "moo"
+            lyric = re.sub(pattern, repl, lyric)
+
+            lyric = re.sub(r"\b\w+(?=[!?])", repl, lyric)
+
+            if matches_dict[user_song]["lyrics"] == lyric:
+                print(f"{matches_dict[user_song]["title"]} by {matches_dict[user_song]["artist"]} is not moose-compatible!")
+            else:
+                print(f"{matches_dict[user_song]["title"]} by {matches_dict[user_song]["artist"]} has been moos-ified!")
+            
+            try:
+                os.mkdir("./moosified")
+            except:
+                moosed_folder_exists = True
+            
+            song_path = matches_dict[user_song]["title"]+" Moosified.txt"
+            file_path = os.path.join("moosified", song_path)
+                        
+            with open(file_path, 'w', encoding='utf-8') as file:
+                file.write(lyric)
+
+            print(f"File saved at ./moosified/{matches_dict[user_song]["title"]} Moosified.txt")
+            print(" ___            ___")
+            print("/   \\          /   \\")
+            print("\\_   \\        /  __/")
+            print(" _\\   \\      /  /__")
+            print(" \\___  \\____/   __/")
+            print("     \\_       _/")
+            print("       | @ @  \\__")
+            print("       |")
+            print("     _/     /\\")
+            print("    /o)  (o/\\ \\__")
+            print("    \\_____/ /")
+            print("      \\____/")
+    
+    except ValueError:
+        print()
+
+    return
 
 # Task 7
-def get_longest_sequence():
-    matches_dict = load_song_data()
-    song_choice = int(input("Please select one of the following songs (number): "))
-    if song_choice in matches_dict:
+
+def filter_song_lyrics(song_choice, matches_dict):
+    if song_choice not in matches_dict:
+        lower_lyrics_split = None
+
+    else:
         lyrics = matches_dict[song_choice]["lyrics"]
         lower_lyrics = lyrics.lower()
-        filtered_lyrics = re.split(r'[,.\'\n\r ]', lower_lyrics)
-        word_list = []
-        for words in filtered_lyrics:
-            if words not in word_list:
-                word_list.append(words)
-
-        print(f"The length of the longest unique word sequence in {matches_dict[song_choice]["title"]} is {len(word_list)} ")
-            
-        print(word_list)  
-
+        lower_lyrics_filtered = re.sub(f"[{re.escape(string.punctuation)}]", "", lower_lyrics)
+        lower_lyrics_split = lower_lyrics_filtered.split()
+        return lower_lyrics_split
+    
 def get_longest_sequence(matches_dict, song_choice, lyrics):
-    # Sliding window algorithm to get longest sequence
     sequence_start = 0
     longest_sequence = 0
     index_mapping = {}
     for i in range(len(lyrics)):
         if lyrics[i] in index_mapping:
-            sequence_start = max(sequence_start, index_mapping[lyrics[i]] + 1)
+            if index_mapping[lyrics[i]] + 1 > sequence_start:
+                sequence_start = index_mapping[lyrics[i]] + 1
         index_mapping[lyrics[i]] = i
-        longest_sequence = max(longest_sequence, i - sequence_start + 1)
-    print(f"The length of the longest unique sequence in {matches_dict[song_choice]["title"]} is {(longest_sequence)}")
 
+        current_length = i - sequence_start + 1
+        if current_length > longest_sequence:
+            longest_sequence = current_length
+    print(f"The length of the longest unique sequence in {matches_dict[song_choice]["title"]} is {(longest_sequence)}")
 
 
 def main():
@@ -286,8 +245,8 @@ Choose one of the options bellow:""")
                     get_artists(names_ids)
                     chosen_artist = get_chosen_artist(names_ids)
                     try:
-                        popularity_list = get_tracks(names_ids, chosen_artist)
-                        format_tracks(popularity_list, chosen_artist)
+                        track_popularity = get_tracks(names_ids, chosen_artist)
+                        format_tracks(track_popularity, chosen_artist)
                     except KeyError:
                         print("error handling")
                 case 4:
@@ -301,20 +260,21 @@ Choose one of the options bellow:""")
                         print("error handling")
                 case 5:
                     names_ids = get_names_ids()
-                    sort_albums_release(names_ids)
+                    load_albums_year(names_ids)
                 case 6:
-                    names_ids = get_names_ids()
-                    get_moosed(names_ids)
+                    matches_dict = load_song_data()
+                    get_moosed(matches_dict)
                 case 7:
                     matches_dict = load_song_data()
                     try:
-                        song_choice = int(input("Please select one of the following songs (number): "))
+                        song_choice = int(input("Please select one of the following songs (number): \n"))
                         lyrics = filter_song_lyrics(song_choice, matches_dict)
-                        get_longest_sequence(matches_dict, song_choice, lyrics)
+                        if lyrics == None:
+                            print("Error. Please input a number from the list of songs above.")
+                        else:
+                            get_longest_sequence(matches_dict, song_choice, lyrics)
                     except ValueError:
-                        print("")
-                    except TypeError:
-                        print("")
+                        print("Error. Please input a positive integer instead.")
                 case 8:
                     pass
                 case 9:
