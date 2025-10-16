@@ -27,11 +27,18 @@ def get_artists(names_ids):
 def get_chosen_artist(names_ids):
     chosen_artist = input("Please input the name of one of the following artists:\n")
     
-    for key in names_ids: 
-        if chosen_artist.lower() == key.lower():
-            chosen_artist = key
-
+    names = list(names_ids.keys())
+    counter = 0
+    while counter < len(names):
+        name = names[counter] 
+        if chosen_artist.lower() == name.lower():
+            chosen_artist = name
+            counter = len(names)
+        else:
+            counter += 1
+    
     return chosen_artist
+
 
 def get_artist_albums(names_ids, chosen_artist):  
 

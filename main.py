@@ -20,14 +20,15 @@ def format_albums(unprocessed_albums):
         
             album = unprocessed_albums[i]["name"]
             release_date = unprocessed_albums[i]["release_date"]
+            release_date_precision = unprocessed_albums[i]["release_date_precision"]
 
-            if len(release_date) == 4:
+            if release_date_precision == "year":
 
                 year = release_date[:4]
 
                 all_albums += f"\n- \"{album}\" was released in {year}."
 
-            elif len(release_date) == 7:
+            elif release_date_precision == "month":
 
                 year = release_date[:4]
                 month = int(release_date[5:7])
@@ -35,7 +36,7 @@ def format_albums(unprocessed_albums):
 
                 all_albums += f"\n- \"{album}\" was released in {month} {year}."
 
-            elif len(release_date) == 10:
+            elif release_date_precision == "day":
 
                 year = release_date[:4]
                 month = int(release_date[5:7])
@@ -56,7 +57,7 @@ def format_albums(unprocessed_albums):
 
             else: 
 
-                all_albums += f"\n- \"{album}\" is not none when it was released."
+                all_albums += f"\n- \"{album}\" has no release date."
 
     return all_albums
 
@@ -275,9 +276,11 @@ Choose one of the options bellow:""")
                     names_ids = get_names_ids()
                     get_artists(names_ids)
                     chosen_artist = get_chosen_artist(names_ids)
-                    if chosen_artist in names_ids:
+                    try:
                         unprocessed_albums = get_artist_albums(names_ids, chosen_artist)
                         print(f"Listing all available albums from {chosen_artist}...{format_albums(unprocessed_albums)}")
+                    except KeyError:
+                        print()
                 case 3:
                     names_ids = get_names_ids()
                     get_artists(names_ids)
@@ -286,7 +289,7 @@ Choose one of the options bellow:""")
                         popularity_list = get_tracks(names_ids, chosen_artist)
                         format_tracks(popularity_list, chosen_artist)
                     except KeyError:
-                        print()
+                        print("error handling")
                 case 4:
                     names_ids = get_names_ids()
                     get_artists(names_ids)
@@ -295,7 +298,7 @@ Choose one of the options bellow:""")
                         artist_info = get_artist_info(names_ids, chosen_artist)
                         read_write_csv(artist_info, chosen_artist)
                     except KeyError:
-                        print()
+                        print("error handling")
                 case 5:
                     names_ids = get_names_ids()
                     sort_albums_release(names_ids)
@@ -319,12 +322,12 @@ Choose one of the options bellow:""")
                 case 10:
                     print("Thank you for using Mooziq! Have a nice day :)")
                 case _:
-                    pass
+                    print("error handling")
 
         except ValueError:
-            pass
+            print("error handling")
         except TypeError:
-            pass
+            print("error handling")
 
 if __name__ == "__main__":
     main()
