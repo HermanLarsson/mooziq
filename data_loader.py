@@ -1,25 +1,30 @@
 import os, json, csv
 
-DIRECTORY = os.path.dirname(os.path.abspath(__file__)) # directory constat since the filepath up to dataset will always be the same
+DIRECTORY = os.path.dirname(os.path.abspath(__file__)) # constat since the filepath up to dataset will always be the different for users
 
 
 def get_names_ids():
 
     dict_artist_info = {}
     folder_path = os.path.join("dataset", "artists")
+
     for file_name in sorted(os.listdir(folder_path)):
         file_path = os.path.join(folder_path, file_name)
         with open(file_path, "r", encoding="utf-8") as file:
             data = json.load(file)
+
             dict_artist_info[data["name"]] = data["id"] 
+
     return dict_artist_info
 
 
 def get_chosen_artist(names_ids):
+
     chosen_artist = input("Please input the name of one of the following artists:\n")
     
     names = list(names_ids.keys())
     counter = 0
+    
     while counter < len(names):
         name = names[counter] 
         if chosen_artist.lower() == name.lower():
@@ -36,7 +41,6 @@ def get_artist_albums(names_ids, chosen_artist):
     folder_path = os.path.join(DIRECTORY, "dataset/albums/")
     
     with open(os.path.join(folder_path, names_ids[chosen_artist] + ".json"), "r", encoding="UTF-8") as jsonfile:
-
         data = json.load(jsonfile)
 
     unprocessed_albums = data["items"]
@@ -60,11 +64,11 @@ def get_tracks(names_ids, chosen_artist):
 
 
 def get_genres(chosen_artist):
-    genres_str = ""
 
+    artist_genres_str = ""
     dict_artist_info = {}
-
     folder_path = os.path.join("dataset", "artists")
+
     for file_name in sorted(os.listdir(folder_path)):
         file_path = os.path.join(folder_path, file_name)
         with open(file_path, "r", encoding="utf-8") as file:
@@ -72,32 +76,31 @@ def get_genres(chosen_artist):
 
             dict_artist_info[data["name"]] = data["genres"]
                            
-    genres = dict_artist_info[chosen_artist]
+    artist_genres = dict_artist_info[chosen_artist]
 
-    if len(genres) > 0:
-        for i in range(len(genres)):
+    if len(artist_genres) > 0:
+        for i in range(len(artist_genres)):
             if i == 0:
-                genres_str += genres[0]
+                artist_genres_str += artist_genres[0]
             else:
-                genres_str += f", {genres[i]}"
+                artist_genres_str += f", {artist_genres[i]}"
     else:
-        genres_str = ""
+        artist_genres_str = ""
 
-    return genres_str
+    return artist_genres_str
 
 
-def read_write_csv(artist_info, chosen_artist):
+def write_artist_csv(artist_info, chosen_artist):
 
     header = ["artist_id", "artist_name", "number_of_albums", "top_track_1", "top_track_2", "genres"]
-
     csv_path = os.path.join(".", "dataset", "artist-data.csv")
+
     if not os.path.isfile(csv_path):
         with open(csv_path, "w", encoding="UTF-8", newline="\n") as file:
             writer = csv.writer(file)
             writer.writerow(header)
 
-
-    with open(csv_path, "r+", encoding="UTF-8", newline="\n") as file:
+    with open(csv_path, "r", encoding="UTF-8") as file:
         data = list(csv.reader(file))
 
     found_artist = False    
@@ -120,37 +123,47 @@ def read_write_csv(artist_info, chosen_artist):
 
 
 def load_song_data():
+
     index = 1
     matches_dict = {}
     folder_path = os.path.join("dataset", "songs")
     print(f"Available songs: ")
+
     for file_names in sorted(os.listdir(folder_path)):
         file_path = os.path.join(folder_path, file_names)
         with open(file_path, "r", encoding="utf-8") as file:
             data = json.load(file)
+
             matches_dict[index] = {"title": data["title"], "lyrics": data["lyrics"], "artist": data["artist"]}
             print(f"{index}. {data["title"]} by {data["artist"]}")
             index += 1
+
     return matches_dict
 
 
 def sort_albums(names_ids, search_year):
+
     reversed_dict = {value: key for key, value in names_ids.items()} 
     albums_list = []    
     folder_path = os.path.join("dataset", "albums")
+
     for file_name in sorted(os.listdir(folder_path)):
         file_path = os.path.join(folder_path, file_name)
         artist_id = os.path.splitext(file_name)[0]    
+
         with open(file_path, "r", encoding="utf-8") as file:
             data = json.load(file)
             albums_info = data["items"]    
+
             for item in albums_info:
                 release_date = item["release_date"]
                 release_year = release_date[:4]
                 album_name = item["name"]
                 artist_name = reversed_dict.get(artist_id)
+
                 if int(release_year) == search_year:
                     albums_list.append((album_name, artist_name))
+
             albums_list.sort()
     
     return albums_list

@@ -15,11 +15,12 @@ def get_artists(names_ids):
 
 def format_albums(unprocessed_albums):
 
-    list_months = [     #perhaps able to use datetime module for this
-    "January", "February", "March", "April", 
-    "May", "June", "July", "August", 
-    "September", "October", "November", "December"
-    ]
+    month_names = {   
+    1: "January", 2: "February", 3: "March", 
+    4: "April", 5: "May", 6: "June", 
+    7: "July", 8: "August", 9: "September", 
+    10: "October", 11: "November", 12: "December"
+    }
     all_albums = ""
 
     for i in range(len(unprocessed_albums)):
@@ -31,22 +32,19 @@ def format_albums(unprocessed_albums):
             if release_date_precision == "year":
 
                 year = release_date[:4]
-
                 all_albums += f"\n- \"{album}\" was released in {year}."
 
             elif release_date_precision == "month":
 
                 year = release_date[:4]
                 month = int(release_date[5:7])
-                month = list_months[month - 1]
 
-                all_albums += f"\n- \"{album}\" was released in {month} {year}."
+                all_albums += f"\n- \"{album}\" was released in {month_names[month]} {year}."
 
             elif release_date_precision == "day":
 
                 year = release_date[:4]
                 month = int(release_date[5:7])
-                month = list_months[month - 1]
                 day = release_date[8:]
 
 
@@ -59,30 +57,32 @@ def format_albums(unprocessed_albums):
                 else:
                     suffix = "th"
 
-                all_albums += f"\n- \"{album}\" was released in {month} {int(day)}{suffix} {year}."
+                all_albums += f"\n- \"{album}\" was released in {month_names[month]} {int(day)}{suffix} {year}."
 
             else: 
-
                 all_albums += f"\n- \"{album}\" has no release date."
 
     return all_albums
 
 #Task 3
     
-def format_tracks(popularity_list, chosen_artist):
+def format_tracks(track_popularity, chosen_artist):
     print(f"Listing top tracks for {chosen_artist}...")
 
-    for song, popularity in popularity_list:
+    for track, popularity in track_popularity:
         if popularity <= 30:
             message = "No one knows this song."
+
         elif popularity <= 50:
             message = "Popular song."
+
         elif popularity <= 70:
             message = "It is quite popular now!"
+            
         elif popularity >= 71:
             message = "It is made for the charts!"
 
-        print(f"- \"{song}\" has a popularity score of {popularity}. {message}")
+        print(f"- \"{track}\" has a popularity score of {popularity}. {message}")
 
 # Task 4
 
@@ -92,15 +92,16 @@ def get_num_tracks(names_ids, artist_info, chosen_artist, amount_tracks):
     for i in range(0, amount_tracks):
         artist_info.append(track_popularity[i][0])
 
+
 def get_artist_info(names_ids, chosen_artist):
 
     artist_info = list()
+
     artist_info.append(names_ids[chosen_artist])
     artist_info.append(chosen_artist)
+
     artist_info.append(len(get_artist_albums(names_ids, chosen_artist)))
-
     get_num_tracks(names_ids, artist_info, chosen_artist, 2)
-
     artist_info.append(get_genres(chosen_artist))
 
     return artist_info
@@ -108,16 +109,20 @@ def get_artist_info(names_ids, chosen_artist):
 # Task 5
 
 def load_albums_year(names_ids):
+
     try:
         search_year = int(input("Please enter a year: \n"))
         albums_list = sort_albums(names_ids, search_year)
+
         if search_year >= 0:
             print(f"Albums released in the year {search_year}:")
+            
             if len(albums_list) == 0:
                 print(f"No albums were released in the year {search_year}.")
             else:  
                 for albums, artist in albums_list:
                     print(f"- \"{albums}\" by {artist}.")
+
         else:
             print("Invalid input. Please type a positive integer as year.")
     except ValueError:
@@ -176,6 +181,7 @@ def get_moosed(matches_dict):
 # Task 7
 
 def filter_song_lyrics(song_choice, matches_dict):
+
     if song_choice not in matches_dict:
         lower_lyrics_split = None
 
@@ -187,9 +193,11 @@ def filter_song_lyrics(song_choice, matches_dict):
         return lower_lyrics_split
     
 def get_longest_sequence(matches_dict, song_choice, lyrics):
+
     sequence_start = 0
     longest_sequence = 0
     index_mapping = {}
+
     for i in range(len(lyrics)):
         if lyrics[i] in index_mapping:
             if index_mapping[lyrics[i]] + 1 > sequence_start:
@@ -199,13 +207,12 @@ def get_longest_sequence(matches_dict, song_choice, lyrics):
         current_length = i - sequence_start + 1
         if current_length > longest_sequence:
             longest_sequence = current_length
+
     print(f"The length of the longest unique sequence in {matches_dict[song_choice]["title"]} is {(longest_sequence)}")
 
 
 def main():
-    print("""Welcome to Mooziq!
-Choose one of the options bellow:""")
-    
+
     main_menu = """
 1. Get All Artists
 2. Get All Albums By An Artist
@@ -220,6 +227,8 @@ Choose one of the options bellow:""")
 """
     menu_option = None
 
+    print("Welcome to Mooziq! \nChoose one of the options bellow:")
+    
     while menu_option != 10:
         
         print(main_menu)
@@ -227,67 +236,81 @@ Choose one of the options bellow:""")
             menu_option = int(input("Type your option:\n"))
 
             match menu_option:
+
                 case 1:
                     names_ids = get_names_ids()
                     print("Artists found in the database:")
                     get_artists(names_ids)
+
                 case 2:
                     names_ids = get_names_ids()
                     get_artists(names_ids)
                     chosen_artist = get_chosen_artist(names_ids)
+
                     try:
                         unprocessed_albums = get_artist_albums(names_ids, chosen_artist)
                         print(f"Listing all available albums from {chosen_artist}...{format_albums(unprocessed_albums)}")
                     except KeyError:
-                        print()
+                        print("Invalid input. Choose a artist from the list above instead :)")
+
                 case 3:
                     names_ids = get_names_ids()
                     get_artists(names_ids)
                     chosen_artist = get_chosen_artist(names_ids)
+
                     try:
                         track_popularity = get_tracks(names_ids, chosen_artist)
                         format_tracks(track_popularity, chosen_artist)
                     except KeyError:
-                        print("error handling")
+                        print("Invalid input. Choose a artist from the list above instead :)")
+
                 case 4:
                     names_ids = get_names_ids()
                     get_artists(names_ids)
+
                     try:
                         chosen_artist = get_chosen_artist(names_ids)
                         artist_info = get_artist_info(names_ids, chosen_artist)
-                        read_write_csv(artist_info, chosen_artist)
+                        write_artist_csv(artist_info, chosen_artist)
                     except KeyError:
-                        print("error handling")
+                        print("Invalid input. Choose a artist from the list above instead :)")
+
                 case 5:
                     names_ids = get_names_ids()
                     load_albums_year(names_ids)
+
                 case 6:
                     matches_dict = load_song_data()
                     get_moosed(matches_dict)
+
                 case 7:
                     matches_dict = load_song_data()
                     try:
                         song_choice = int(input("Please select one of the following songs (number): \n"))
                         lyrics = filter_song_lyrics(song_choice, matches_dict)
+
                         if lyrics == None:
                             print("Error. Please input a number from the list of songs above.")
                         else:
                             get_longest_sequence(matches_dict, song_choice, lyrics)
                     except ValueError:
                         print("Error. Please input a positive integer instead.")
+
                 case 8:
                     pass
+
                 case 9:
                     pass
+
                 case 10:
                     print("Thank you for using Mooziq! Have a nice day :)")
+
                 case _:
-                    print("error handling")
+                    print("Invalid input. You can only input digits between 1-10.")
 
         except ValueError:
-            print("error handling")
-        except TypeError:
-            print("error handling")
+            print("Invalid input. You can only input integers.")
+
 
 if __name__ == "__main__":
     main()
