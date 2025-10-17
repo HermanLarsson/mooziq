@@ -145,34 +145,35 @@ def get_moosed(matches_dict):
 
             if matches_dict[user_song]["lyrics"] == lyric:
                 print(f"{matches_dict[user_song]["title"]} by {matches_dict[user_song]["artist"]} is not moose-compatible!")
+            
             else:
                 print(f"{matches_dict[user_song]["title"]} by {matches_dict[user_song]["artist"]} has been moos-ified!")
             
-            try:
-                os.mkdir("./moosified")
-            except:
-                moosed_folder_exists = True
-            
-            song_path = matches_dict[user_song]["title"]+" Moosified.txt"
-            file_path = os.path.join("moosified", song_path)
-                        
-            with open(file_path, 'w', encoding='utf-8') as file:
-                file.write(lyric)
+                try:
+                    os.mkdir("./moosified")
+                except:
+                    moosed_folder_exists = True
+                
+                song_path = matches_dict[user_song]["title"]+" Moosified.txt"
+                file_path = os.path.join("moosified", song_path)
+                            
+                with open(file_path, 'w', encoding='utf-8') as file:
+                    file.write(lyric)
 
-            print(f"File saved at ./moosified/{matches_dict[user_song]["title"]} Moosified.txt")
-            print(" ___            ___")
-            print("/   \\          /   \\")
-            print("\\_   \\        /  __/")
-            print(" _\\   \\      /  /__")
-            print(" \\___  \\____/   __/")
-            print("     \\_       _/")
-            print("       | @ @  \\__")
-            print("       |")
-            print("     _/     /\\")
-            print("    /o)  (o/\\ \\__")
-            print("    \\_____/ /")
-            print("      \\____/")
-    
+                print(f"File saved at ./moosified/{matches_dict[user_song]["title"]} Moosified.txt")
+                print(" ___            ___")
+                print("/   \\          /   \\")
+                print("\\_   \\        /  __/")
+                print(" _\\   \\      /  /__")
+                print(" \\___  \\____/   __/")
+                print("     \\_       _/")
+                print("       | @ @  \\__")
+                print("       |")
+                print("     _/     /\\")
+                print("    /o)  (o/\\ \\__")
+                print("    \\_____/ /")
+                print("      \\____/")
+        
     except ValueError:
         print()
 
