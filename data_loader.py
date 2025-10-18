@@ -1,4 +1,4 @@
-import os, json, csv
+import os, json, csv, datetime
 
 DIRECTORY = os.path.dirname(os.path.abspath(__file__)) # constat since the filepath up to dataset will always be the different for users
 
@@ -167,3 +167,50 @@ def sort_albums(names_ids, search_year):
             albums_list.sort()
     
     return albums_list
+
+
+def get_performing_artists():
+
+
+    with open(os.path.join(DIRECTORY, "dataset", "concerts", "concerts.csv"), "r", encoding="UTF-8") as file:
+        all_concerts = csv.DictReader(file)
+        artists = list()
+
+        for row in all_concerts:
+            if row["artist"] not in artists:
+                artists.append(row["artist"])
+        
+        for i in range(len(artists)):
+            print(f"- {artists[i]}")
+
+
+def get_concerts():
+    artist_concerts = list()
+    chosen_artist = input("Please input the name of one of the following artists: ")
+
+    with open(os.path.join(DIRECTORY, "dataset", "concerts", "concerts.csv"), "r", encoding="UTF-8") as file:
+        all_concerts = csv.DictReader(file)
+
+        for row in all_concerts:
+            if row["artist"].lower() == chosen_artist.lower():
+                 artist_concerts.append(row)
+        
+    return artist_concerts
+
+
+def get_weather(artist_concerts):
+    with open(os.path.join(DIRECTORY, "dataset", "weather", "weather.csv"), "r", encoding="UTF-8") as file:
+        data = csv.reader(file)
+        header = next(data)
+        weather_info = list(data)
+
+        for concert in artist_concerts:
+
+            concert_date = str(datetime.date(int(concert["year"]), int(concert["month"]), int(concert["day"])))
+            for row in weather_info:
+                if concert_date == row[1]:
+                    if concert["city_code"] == row[3]:
+                        concert["weather"] = row
+    
+    return artist_concerts
+                             

@@ -13,7 +13,7 @@ def get_artists(names_ids):
 
 # Task 2
 
-def format_albums(unprocessed_albums):
+def format_date(date, date_precision):
 
     month_names = {   
     1: "January", 2: "February", 3: "March", 
@@ -21,48 +21,65 @@ def format_albums(unprocessed_albums):
     7: "July", 8: "August", 9: "September", 
     10: "October", 11: "November", 12: "December"
     }
-    all_albums = ""
+    formatted_date = tuple()
+    if date_precision == "year":
 
+        year = date[:4]
+        formatted_date = (year)
+
+    elif date_precision == "month":
+
+        year = date[:4]
+        month = int(date[5:7])
+                    
+        formatted_date = (year, month_names[month])
+
+    elif date_precision == "day":
+    
+        year = date[:4]
+        month = int(date[5:7])
+        day = date[8:]
+
+        if day[len(day) - 1] == "1" and day != "11":
+            suffix = "st"
+        elif day[len(day) - 1] == "2" and day != "12":
+            suffix = "nd"
+        elif day[len(day) - 1] == "3" and day != "13":
+            suffix = "rd"
+        else:
+            suffix = "th"
+
+        day = int(day)    #To remove the zero it starts with zero
+        
+        day = str(day) + suffix
+
+        formatted_date = (year, month_names[month], day)
+
+    return formatted_date
+
+def get_release_date(unprocessed_albums):
+    all_albums = ""
     for i in range(len(unprocessed_albums)):
         
             album = unprocessed_albums[i]["name"]
             release_date = unprocessed_albums[i]["release_date"]
             release_date_precision = unprocessed_albums[i]["release_date_precision"]
+            formatted_date = format_date(release_date, release_date_precision)
 
-            if release_date_precision == "year":
+            if len(formatted_date) == 3:
+                all_albums += f"\n- \"{album}\" was released in {formatted_date[1]} {formatted_date[2]} {formatted_date[0]}."
 
-                year = release_date[:4]
-                all_albums += f"\n- \"{album}\" was released in {year}."
+            elif len(formatted_date) == 2:
+                all_albums += f"\n- \"{album}\" was released in {formatted_date[1]} {formatted_date[0]}."
 
-            elif release_date_precision == "month":
-
-                year = release_date[:4]
-                month = int(release_date[5:7])
-
-                all_albums += f"\n- \"{album}\" was released in {month_names[month]} {year}."
-
-            elif release_date_precision == "day":
-
-                year = release_date[:4]
-                month = int(release_date[5:7])
-                day = release_date[8:]
-
-
-                if day[len(day) - 1] == "1" and day != "11":
-                    suffix = "st"
-                elif day[len(day) - 1] == "2" and day != "12":
-                    suffix = "nd"
-                elif day[len(day) - 1] == "3" and day != "13":
-                    suffix = "rd"
-                else:
-                    suffix = "th"
-
-                all_albums += f"\n- \"{album}\" was released in {month_names[month]} {int(day)}{suffix} {year}."
+            elif len(formatted_date) == 1:
+                all_albums += f"\n- \"{album}\" was released in {formatted_date[0]}."
 
             else: 
                 all_albums += f"\n- \"{album}\" has no release date."
 
     return all_albums
+
 
 #Task 3
     
@@ -87,8 +104,8 @@ def format_tracks(track_popularity, chosen_artist):
 # Task 4
 
 def get_num_tracks(names_ids, artist_info, chosen_artist, amount_tracks):
+
     track_popularity = get_tracks(names_ids, chosen_artist)
- 
     for i in range(0, amount_tracks):
         artist_info.append(track_popularity[i][0])
 
@@ -211,6 +228,30 @@ def get_longest_sequence(matches_dict, song_choice, lyrics):
 
     print(f"The length of the longest unique sequence in {matches_dict[song_choice]["title"]} is {(longest_sequence)}")
 
+# Task 8
+
+def check_weather(concerts):
+    all_concerts = ""
+    for concert in concerts:
+        formatted_date = format_date(concert["weather"][1], "day")
+        message = ""
+
+        if int(concert["weather"][6]) <= 10:
+            message += "Wear warm clothes. "
+
+        elif int(concert["weather"][6]) > 10 and float(concert["weather"][0]) < 2.3:
+            message += "Perfect weather!"
+
+        if float(concert["weather"][0]) >= 2.3 and int(concert["weather"][8]) < 15:
+            message += "Bring an umbrella."
+
+        elif float(concert["weather"][0]) >= 2.3 and int(concert["weather"][8]) >= 15:
+            message += "Bring an rain jacket."
+
+        all_concerts += f"\n- {concert["weather"][2]}, {formatted_date[1]} {formatted_date[2]} {formatted_date[0]}. {message}"
+
+    return all_concerts
+
 
 def main():
 
@@ -250,7 +291,7 @@ def main():
 
                     try:
                         unprocessed_albums = get_artist_albums(names_ids, chosen_artist)
-                        print(f"Listing all available albums from {chosen_artist}...{format_albums(unprocessed_albums)}")
+                        print(f"Listing all available albums from {chosen_artist}...{get_release_date(unprocessed_albums)}")
                     except KeyError:
                         print("Invalid input. Choose a artist from the list above instead :)")
 
@@ -298,8 +339,23 @@ def main():
                         print("Error. Please input a positive integer instead.")
 
                 case 8:
-                    pass
+                    try:
+                        get_performing_artists()
+                        artist_concerts = get_concerts()
+                        concerts_weather = get_weather(artist_concerts)
 
+                        print(f"Fetching weather forecast for \"{artist_concerts[0]["artist"]}\" concerts...")
+                        if len(artist_concerts) > 1:
+                            print(f"{artist_concerts[0]["artist"]} has {len(artist_concerts)} upcoming concerts:{check_weather(concerts_weather)}")
+
+                        elif len(artist_concerts) == 1:
+                            print(f"{artist_concerts[0]["artist"]} has {len(artist_concerts)} upcoming concert:{check_weather(concerts_weather)}")
+                            
+                    except ValueError:
+                        print("Invalid input. Choose a artist from the list above instead :)")
+
+                    except IndexError:
+                        print("Invalid input. Choose a artist from the list above instead :)")
                 case 9:
                     pass
 
