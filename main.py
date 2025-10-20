@@ -293,7 +293,7 @@ def main():
                         unprocessed_albums = get_artist_albums(names_ids, chosen_artist)
                         print(f"Listing all available albums from {chosen_artist}...{get_release_date(unprocessed_albums)}")
                     except KeyError:
-                        print("Invalid input. Choose a artist from the list above instead :)")
+                        print(f"Invalid input. {chosen_artist} is not a artist from the list above :)")
 
                 case 3:
                     names_ids = get_names_ids()
@@ -304,7 +304,7 @@ def main():
                         track_popularity = get_tracks(names_ids, chosen_artist)
                         format_tracks(track_popularity, chosen_artist)
                     except KeyError:
-                        print("Invalid input. Choose a artist from the list above instead :)")
+                        print(f"Invalid input. {chosen_artist} is not a artist from the list above :)")
 
                 case 4:
                     names_ids = get_names_ids()
@@ -315,7 +315,7 @@ def main():
                         artist_info = get_artist_info(names_ids, chosen_artist)
                         write_artist_csv(artist_info, chosen_artist)
                     except KeyError:
-                        print("Invalid input. Choose a artist from the list above instead :)")
+                        print(f"Invalid input. {chosen_artist} is not a artist from the list above :)")
 
                 case 5:
                     names_ids = get_names_ids()
