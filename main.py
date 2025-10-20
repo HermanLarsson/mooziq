@@ -80,7 +80,6 @@ def get_release_date(unprocessed_albums):
 
     return all_albums
 
-
 #Task 3
     
 def format_tracks(track_popularity, chosen_artist):
